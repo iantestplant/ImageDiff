@@ -1,0 +1,10 @@
+<RCC>
+<qresource>
+    <file>images/ImageDiff-64.png</file>
+    <file>images/delete-16.png</file>
+    <file>images/add-16.png</file>
+	<file>images/rename-16.png</file>
+	<file>images/lock-16.png</file>
+	<file>images/lock_open_ok-16.png</file>
+</qresource>
+</RCC>
