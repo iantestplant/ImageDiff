@@ -36,6 +36,8 @@ Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
+; Source: "vcredist_x86_2010.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "vcredist_x86.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: ".\distwin32\imageDiff.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\distwin32\_hashlib.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\distwin32\bz2.pyd"; DestDir: "{app}"; Flags: ignoreversion
@@ -55,4 +57,38 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
+Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q"; Check: VCRedistNeedsInstall
+; Filename: "{tmp}\vcredist_x86_2010.exe"; Parameters: "/q"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+#IFDEF UNICODE
+  #DEFINE AW "W"
+#ELSE
+  #DEFINE AW "A"
+#ENDIF
+type
+  INSTALLSTATE = Longint;
+const
+  INSTALLSTATE_INVALIDARG = -2;  // An invalid parameter was passed to the function.
+  INSTALLSTATE_UNKNOWN = -1;     // The product is neither advertised or installed.
+  INSTALLSTATE_ADVERTISED = 1;   // The product is advertised but not installed.
+  INSTALLSTATE_ABSENT = 2;       // The product is installed for a different user.
+  INSTALLSTATE_DEFAULT = 5;      // The product is installed for the current user.
+
+  VC_2008_REDIST_X86 = '{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}';
+  VC_2008_SP1_REDIST_X86 = '{9A25302D-30C0-39D9-BD6F-21E6EC160475}';
+
+
+function MsiQueryProductState(szProduct: string): INSTALLSTATE;
+  external 'MsiQueryProductState{#AW}@msi.dll stdcall';
+
+function VCVersionInstalled(const ProductID: string): Boolean;
+begin
+  Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
+end;
+
+function VCRedistNeedsInstall: Boolean;
+begin
+  Result := not (VCVersionInstalled(VC_2008_REDIST_X86) and VCVersionInstalled(VC_2008_SP1_REDIST_X86));
+end;
