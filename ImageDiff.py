@@ -111,7 +111,6 @@ class node(QtGui.QGraphicsPixmapItem):
 			self.mw.ui.overlay_lbl.clear()
 
 	def toleranceMatch(self, px1, px2, rgbTolerances):
-		#print rgbTolerances, " | ", abs(qRed(px1) - qRed(px2)), abs(qGreen(px1) - qGreen(px2)), abs(qBlue(px1) - qBlue(px2))
 		if (abs(qRed(px1) - qRed(px2))) > rgbTolerances[0] or (abs(qGreen(px1) - qGreen(px2))) > rgbTolerances[1] or (abs(qBlue(px1) - qBlue(px2))) > rgbTolerances[2]:
 			return False
 		if not self.mw.ui.actionIgnore_Transparent_Pixels.isChecked():
@@ -341,8 +340,6 @@ if __name__ == "__main__":
 	addIcon16 =  QIcon(":/images/add-16.png")
 	renameIcon16 = QIcon(":/images/rename-16.png")
 
-	#~ for s in QtGui.QApplication.libraryPaths():
-		#~ print s
 	if sys.platform == 'win32':
 		app.setStyle("windowsxp")  # required for windows 8!
 	else:
