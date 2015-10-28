@@ -32,6 +32,6 @@ ImageDiff.app  is in the dist folder.
 
 #ToDo
 * Update the plist file in ImageDiff.app to include company data, copywrite etc.
-* Update release number to 1.0
+
 
 

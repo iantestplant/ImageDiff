@@ -17,10 +17,13 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+ui/UI_mainWindow.py
+
 # =========================
 # Operating System Files
 # =========================
 *.exe
+*.zip
 
 # OSX
 # =========================

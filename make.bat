@@ -2,7 +2,7 @@ REM Build script for ImageDiff
 REM Requires py2exe and inno
 set PYTHON_HOME=c:\tools\Python27
 set target=ImageDiff
-set version=0.2
+set version=1.0
 set path=%QTDIR%\bin;%PYTHON_HOME%
 set PYQTBASE=%PYTHON_HOME%
 
@@ -15,5 +15,5 @@ call pyuic4 -d ui\mainWindow.ui > ui\Ui_mainWindow.py
 
 python setupWin32.py py2exe -isip
 
-%iscc%  /F%target%-%version%.setupWindows "%target%.iss"
+%iscc%  /F%target%-%version%.setup "%target%.iss"
 rd /q/s build

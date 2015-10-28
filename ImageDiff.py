@@ -1,5 +1,5 @@
 #
-#Compare Images tool
+# Image differencing tool
 #
 # author: Ian Parker
 # Copyright (C) 2015	TestPlant UK Ltd
@@ -13,7 +13,7 @@ import ImageDiff_rc
 
 from ui.Ui_mainWindow import Ui_MainWindow
 title = u"eggPlant Image Differencing"
-version = "0.2"
+version = "1.0"
 
 class node(QtGui.QGraphicsPixmapItem):
 	def __init__(self, path, mw):
@@ -66,46 +66,50 @@ class node(QtGui.QGraphicsPixmapItem):
 	def showOverlay(self):
 		items = self.collidingItems()
 		if items:
-			# get intersection as a RectF in scene coodinates
-			rect_intersect = self.sceneBoundingRect().intersected(items[0].sceneBoundingRect())
+			QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+			try:
+				# get intersection as a RectF in scene coodinates
+				rect_intersect = self.sceneBoundingRect().intersected(items[0].sceneBoundingRect())
 
-			# map scene intersect to a QPolygonF foreach GraphicsItem that can be used to get the overlapping area of each item
-			qpoly = self.mapFromScene(rect_intersect)
-			qpoly1 = items[0].mapFromScene(rect_intersect)
+				# map scene intersect to a QPolygonF foreach GraphicsItem that can be used to get the overlapping area of each item
+				qpoly = self.mapFromScene(rect_intersect)
+				qpoly1 = items[0].mapFromScene(rect_intersect)
 
-			# Create new pixmaps containing just the overlapped regions.
-			# This seems to be +/- 1 pixel so perhaps needs refining.
-			p1 = self.pixmap().copy(qpoly.boundingRect().toRect() )
-			p2 = items[0].pixmap().copy(qpoly1.boundingRect().toRect() )
-			self.mw.pm1 = p1
-			self.mw.pm2 = p2
-			self.mw.ui.image1_title_te.setText(self.path)
-			self.mw.ui.image2_title_te.setText(items[0].path)
+				# Create new pixmaps containing just the overlapped regions.
+				# This seems to be +/- 1 pixel so perhaps needs refining.
+				p1 = self.pixmap().copy(qpoly.boundingRect().toRect() )
+				p2 = items[0].pixmap().copy(qpoly1.boundingRect().toRect() )
+				self.mw.pm1 = p1
+				self.mw.pm2 = p2
+				self.mw.ui.image1_title_te.setText(self.path)
+				self.mw.ui.image2_title_te.setText(items[0].path)
 
-			i1 = p1.toImage()
-			i2 = p2.toImage()
-			inv = p1.toImage()
-			inv.invertPixels()
-			# Create a qimage to contain the matched pixes and inverted pixes where they dont match
-			i3 = QtGui.QImage(p1.width(), p1.height(), QtGui.QImage.Format_RGB32)
-			disc = 0 # discrepency count
-			# intersect pixmaps can be different by 1 pixel
-			width = min(p1.width(), p2.width())
-			height = min(p1.height(), p2.height())
+				i1 = p1.toImage()
+				i2 = p2.toImage()
+				inv = p1.toImage()
+				inv.invertPixels()
+				# Create a qimage to contain the matched pixes and inverted pixes where they dont match
+				i3 = QtGui.QImage(p1.width(), p1.height(), QtGui.QImage.Format_RGB32)
+				disc = 0 # discrepency count
+				# intersect pixmaps can be different by 1 pixel
+				width = min(p1.width(), p2.width())
+				height = min(p1.height(), p2.height())
 
-			rgbTolerances = self.mw.getTolerance()
-			for x in range(width):
-				for y in range(height):
-					if self.toleranceMatch(i1.pixel(x,y), i2.pixel(x,y), rgbTolerances):
-						i3.setPixel(x, y, i1.pixel(x,y)) # copy the pixel
-					else:
-						i3.setPixel(x, y, inv.pixel(x,y)) # copy the inverse pixel
-						disc +=1
+				rgbTolerances = self.mw.getTolerance()
+				for x in range(width):
+					for y in range(height):
+						if self.toleranceMatch(i1.pixel(x,y), i2.pixel(x,y), rgbTolerances):
+							i3.setPixel(x, y, i1.pixel(x,y)) # copy the pixel
+						else:
+							i3.setPixel(x, y, inv.pixel(x,y)) # copy the inverse pixel
+							disc +=1
 
-			self.mw.pm3 = QtGui.QPixmap.fromImage(i3)
-			self.mw.ui.compare_title_te.setText("discrepency %d%% %d pixels"%( 100 * disc/(width * height), disc))
+				self.mw.pm3 = QtGui.QPixmap.fromImage(i3)
+				self.mw.ui.compare_title_te.setText("discrepency %d pixels, %g%%"%(disc, 100 * float(disc)/(width * height)))
 
-			self.mw.showImages()
+				self.mw.showImages()
+			finally:
+				QApplication.restoreOverrideCursor()
 		else:
 			self.mw.ui.image2_lbl.clear()
 			self.mw.ui.overlay_lbl.clear()
@@ -197,7 +201,7 @@ class Scene(QtGui.QGraphicsScene):
 			self.prevFocus.showOverlay()
 
 class ImageDiff(QMainWindow):
-	def __init__(self):
+	def __init__(self, args):
 		QMainWindow.__init__(self)
 
 		self.setWindowIcon(QIcon(":/images/ImageDiff-64.png"))
@@ -227,10 +231,13 @@ class ImageDiff(QMainWindow):
 
 		self.ui.actionExit.triggered.connect(self.close)
 		self.connect(self.ui.scale_Slider, QtCore.SIGNAL("valueChanged(int)"), self.showImages)
-		#self.connect(self.ui.tolerance_le, QtCore.SIGNAL("textChanged(QString)"), self.setTolerance)
+		self.connect(self.ui.tolerance_le, QtCore.SIGNAL("editingFinished()"), self.showOverlay)
 		self.ui.image1_title_te.setStyleSheet("background-color: transparent;")
 		self.ui.image2_title_te.setStyleSheet("background-color: transparent;")
 		self.ui.compare_title_te.setStyleSheet("background-color: transparent;")
+
+		if args:
+			self.scene.addImageFiles(args)
 
 	def about(self):
 		QtGui.QMessageBox.about(self, title, "%s by TestPlant\nVersion %s"%(title, version))
@@ -347,7 +354,8 @@ if __name__ == "__main__":
 			app.setStyle("macintosh")
 		else:
 			app.setStyle("plastique");
-	mw = ImageDiff()
+
+	mw = ImageDiff(sys.argv[1:])
 	app.mw = mw
 
 	app.connect(app, SIGNAL('lastWindowClosed()'), app, SLOT('quit()'))

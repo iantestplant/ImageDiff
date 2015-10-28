@@ -12,7 +12,7 @@ install_name_tool -change QtCore.framework/Versions/4/QtCore  @executable_path/.
 rm -rf build dist
 
 export target=ImageDiff
-export version=0.2
+export version=1.0
 
 #After stuggling for hours with py2app, cx_freeze etc founf that the only packager that supports qt plugins (for the tiff handling) is pyinstaller
 pyinstaller -w -i ImageDiff.icns --onefile ImageDiff.py
