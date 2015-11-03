@@ -5,15 +5,17 @@
 # Copyright (C) 2015	TestPlant UK Ltd
 
 
-import sys, os
+import sys, os, urllib2
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import QSettings, QPoint, QSize, SIGNAL, SLOT
+from PyQt4.QtCore import QSettings, QPoint, QSize, SIGNAL, SLOT, QTimer
 from PyQt4.QtGui import QApplication, QMainWindow, QPixmap, QIcon, qRed, qGreen, qBlue, qAlpha
 import ImageDiff_rc
 
+
 from ui.Ui_mainWindow import Ui_MainWindow
 title = u"eggPlant Image Differencing"
-version = "1.0"
+_version = "1.0"
+_release = 100
 
 class node(QtGui.QGraphicsPixmapItem):
 	def __init__(self, path, mw):
@@ -204,7 +206,7 @@ class ImageDiff(QMainWindow):
 	def __init__(self, args):
 		QMainWindow.__init__(self)
 
-		self.setWindowIcon(QIcon(":/images/ImageDiff-64.png"))
+		self.setWindowIcon(ImageDiffIcon)
 
 		self.imageFolder = ""
 		self.pm1 = self.pm2 = self.pm3 = None
@@ -239,17 +241,19 @@ class ImageDiff(QMainWindow):
 		if args:
 			self.scene.addImageFiles(args)
 
+		QTimer.singleShot(2000, self.checkForNewVersion)
+
 	def about(self):
-		QtGui.QMessageBox.about(self, title, "%s by TestPlant\nVersion %s"%(title, version))
+		QtGui.QMessageBox.about(self, title, "%s by TestPlant\nVersion %s"%(title, _version))
 
 	def usage(self):
 		QtGui.QMessageBox.about(self, "Usage", "Add files from the file menu, or by drag and drop.\n\n" +
 		"Move images using the mouse or the keyboard cursor keys.\n\n" +
 		"The overlapping regions of two images are shown in the lower windows.\n\n" +
-		"The discrepancy is the percentage and count of different pixels.\n\n" +
+		"The discrepancy is the count and percentage of different pixels.\n\n" +
 		"Tolerance is the maximum allowed difference in each RGB value of a pixel.\nSet one integer for all colors or 3 for red green and blue.\n\n" +
 		"Ignoring transparency is set in the options menu.\n\n"
-		"Right-click an image to change overlap order or remove.")
+		"Right-click an image to change the overlap order or remove.")
 
 	def getTolerance(self):
 		try:
@@ -307,6 +311,7 @@ class ImageDiff(QMainWindow):
 	def saveSettings(self):
 		self.settings.setValue('imageFolder', self.imageFolder)
 		self.settings.setValue('ignoreAlpha', self.ui.actionIgnore_Transparent_Pixels.isChecked())
+		self.settings.setValue('checkupdate', self.ui.actionCheck_for_update_at_start.isChecked())
 		self.settings.setValue('tolerance', self.ui.tolerance_le.text())
 		self.settings.beginGroup("/geometry")
 		self.settings.setValue("X", self.pos().x())
@@ -318,6 +323,7 @@ class ImageDiff(QMainWindow):
 	def readSettings(self):
 		self.imageFolder = os.path.normpath(str(self.settings.value("imageFolder").toString()))
 		self.ui.actionIgnore_Transparent_Pixels.setChecked( self.settings.value("ignoreAlpha", True).toBool())
+		self.ui.actionCheck_for_update_at_start.setChecked( self.settings.value("checkupdate", True).toBool())
 		self.ui.tolerance_le.setText( self.settings.value("tolerance").toString())
 		self.settings.beginGroup("/geometry")
 		p = QPoint()  # position
@@ -340,12 +346,26 @@ class ImageDiff(QMainWindow):
 			self.resize(s)  # restore size
 			self.move(p)  # restore position
 
+	def checkForNewVersion(self):
+		if not self.ui.actionCheck_for_update_at_start.isChecked():
+			return
+		r = urllib2.urlopen('http://downloads.testplant.com/downloads/ImageDiff/ImageDiff.txt')
+		if r.getcode() == 200 and int(r.readline()) > _release:
+			msgBox = QtGui.QMessageBox(self)
+			msgBox.setWindowTitle("Version Check")
+			msgBox.setTextFormat(QtCore.Qt.RichText)
+			msgBox.setText( "A new version is available from:<P> <a href=\"http://www.testplant.com/dlds/eggplant-functional\">eggPlant Functional downloads</a>" )
+			msgBox.setIconPixmap(QPixmap(":/images/ImageDiff-64.png"))
+			msgBox.exec_()
+
+
 if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)
 
 	deleteIcon16 = QIcon(":/images/delete-16.png")
 	addIcon16 =  QIcon(":/images/add-16.png")
 	renameIcon16 = QIcon(":/images/rename-16.png")
+	ImageDiffIcon = QIcon(":/images/ImageDiff-64.png")
 
 	if sys.platform == 'win32':
 		app.setStyle("windowsxp")  # required for windows 8!

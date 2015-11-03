@@ -1,14 +1,15 @@
 
 import os
-target = os.environ["target"]
 version = os.environ["version"]
-print target, version
-plist = "dist/ImageDiff.app/Contents/Info.plist"
-s = open(plist).read()
-s = s.replace("org.pythonmac.unspecified", "com.testplant")
-s = s.replace("0.0.0", version)
+release = os.environ["release"]
 
-open("Info.plist", 'w').write(s)
-os.remove(plist)
-os.rename("info.plist", plist)
+print('version=%s release=%s'%(version, release))
+s = open('Info_template.plist').read()
+s = s.replace("[VERSION]", version)
+s = s.replace("[RELEASE]", release)
+
+plist = "dist/ImageDiff.app/Contents/Info.plist"
+open(plist, 'w').write(s)
+
 print "edited " + plist
+

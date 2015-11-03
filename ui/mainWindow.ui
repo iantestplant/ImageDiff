@@ -106,7 +106,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>156</width>
-                 <height>125</height>
+                 <height>123</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -180,7 +180,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>157</width>
-                  <height>125</height>
+                  <height>123</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -253,7 +253,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>156</width>
-                  <height>125</height>
+                  <height>123</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -448,6 +448,7 @@
      <string>Options</string>
     </property>
     <addaction name="actionIgnore_Transparent_Pixels"/>
+    <addaction name="actionCheck_for_update_at_start"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
@@ -490,6 +491,17 @@
    </property>
    <property name="toolTip">
     <string>Ignore Transparent Pixels when comparing</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_update_at_start">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Check for update at start.</string>
    </property>
   </action>
  </widget>

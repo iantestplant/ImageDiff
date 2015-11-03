@@ -15,5 +15,5 @@ call pyuic4 -d ui\mainWindow.ui > ui\Ui_mainWindow.py
 
 python setupWin32.py py2exe -isip
 
-%iscc%  /F%target%-%version%.setup "%target%.iss"
+%iscc%  /F%target%-%version%.Setup "%target%.iss"
 rd /q/s build

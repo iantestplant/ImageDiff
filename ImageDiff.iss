@@ -50,7 +50,8 @@ Source: ".\distwin32\select.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\distwin32\sip.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\distwin32\unicodedata.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\distwin32\imageformats\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+Source: ".\distwin32\_socket.pyd"; DestDir: "{app}";
+;NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

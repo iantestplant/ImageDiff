@@ -24,7 +24,7 @@ setup(
 	} ],
 	options = {
 		"py2exe": {
-			"includes": ['sip',],
+			"includes": ['sip'],
 			"excludes": [
 				'unittest',
 			],
